@@ -89,7 +89,6 @@ void bfs(int p){
     for( int i=0;i<nodes[p].num_edge; i++ ){
         if( nodes[ nodes[p].links_to[i] ].explored==0 ){
             nodes[ nodes[p].links_to[i] ].dist_from_0 = nodes[p].dist_from_0 + 1;
-            nodes[ nodes[p].links_to[i] ].explored=1;
             nodes[ nodes[p].links_to[i] ].parent_node = p;
             QQ[QQ_index++]=nodes[p].links_to[i];
         }
@@ -98,13 +97,12 @@ void bfs(int p){
 
     //doing bfs
     for( int i=0; i<QQ_index; i++ ){
+        nodes[  QQ[i]  ].explored = 1;
         for( int j=0; j<nodes[ QQ[i] ].num_edge; j++ ){
-            if( nodes[ nodes[ QQ[i] ].links_to[j] ].explored == 0 ){
-                nodes[ nodes[ QQ[i] ].links_to[j] ].dist_from_0 = nodes[ QQ[i] ].dist_from_0 + 1;
-                nodes[ nodes[ QQ[i] ].links_to[j] ].explored = 1;
-                nodes[ nodes[ QQ[i] ].links_to[j] ].parent_node= nodes[ QQ[i] ].ID;
-                QQ[QQ_index++]= nodes[ QQ[i] ].links_to[j];
-            }
+             if( nodes[ nodes[ QQ[i] ].links_to[j] ].explored == 1 ) continue;
+             QQ[QQ_index++] = nodes[ QQ[i] ].links_to[j];
+             nodes[ nodes[ QQ[i] ].links_to[j] ].parent_node = QQ[i];
+             nodes[ nodes[ QQ[i] ].links_to[j] ].dist_from_0 = nodes[  QQ[i]  ].dist_from_0+1;
         }
     }
     //doing bfs
@@ -115,3 +113,4 @@ void prt_QQ(){
         printf("%d ",QQ[i]);
     }
 }
+
