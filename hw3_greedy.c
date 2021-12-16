@@ -78,7 +78,7 @@ double dist(node* node_1,node* node_2){
     return sqrt(dx*dx+dy*dy);
 }
 
-double other_noise_counting( link* other, link* to_append ){
+double other_noise_counting( link* other, link* to_append ){ // dl^3/dl'^3
     double tmp;
     tmp = dist( other->transmitter, to_append->receiver );
     return pow(to_append->distance_t_r,3)/pow(tmp,3);
@@ -88,7 +88,7 @@ int is_receiveable(link* receiver){
     double other_noise=0;
     for(int i=0;i<how_many_valid_links;i++){
         if(receiver->link_id==i) continue;
-        other_noise+=other_noise_counting(&links[i],receiver);
+        other_noise+=other_noise_counting(valid_links[i],receiver);
     }
     double tmp = noise * pow(receiver->distance_t_r,3) / power;
     if (other_noise + tmp < 1)
@@ -99,8 +99,10 @@ int is_receiveable(link* receiver){
 
 int is_valid_to_append(link* link_to_append){
     append(link_to_append);
-    if ( is_valid_links_valid() )
+    if ( is_valid_links_valid() ){
+        printf("link %d is valid\n",link_to_append->link_id);
         return 1;
+    }
     else
         pop();
     return 0;
@@ -108,7 +110,7 @@ int is_valid_to_append(link* link_to_append){
 
 int is_valid_links_valid(){
     for(int i=0;i<how_many_valid_links;i++){
-        if(!is_receiveable(&li      dfvxc       v  v vdf vdfcb vdf vdf v         vvvvvdfcbxgn vdfcxbgsn vdfcbx vdfcxb vdf vdfvvvv vdfcvvdfdfvvvvdfvdfv vvvvdfvvdfcdfcvdfv v vdf vdfvdvdvvvvvvvdfvdf vvvvdf vvd vvdfc     dfv     dv          v v vvdfvdfvvdfc dfvcxdvfc   vd  dfv dfvc dfvcxbgsn dvv v vdfcx vdfc vdfc v vdfvdfvvdf v   vdfvdf vdfdfvdvdvvdfvdfvdfvdfvvvvdfvdfcbx v v vdfc vdfcb vdfdfvvdfcbxdfvdfcfdfcbvdfcbbxdfvdfcxbgnvdfcvdfvdfvdfv vdfvdfc vdfvdfvvdfcbdfcvdfcbxgn vdfcbxvdfvvdfcbvdfcbdfcvdfcvdfc vfddf vdfcvdfvdfcvdfdfdfcbxddfcbdfcbxgn vdfcb vdfcvdfvdfcvvdfvvdf vdfcvdfvvdfcbxvdfcbxg vdfcbxg vdfcbxgv vdf vvdfv vdfc vdfcvvdfcbvdfvdfcbxgn vdfcbxgvdfcvdfcb v vv v vvv vdf vdfcxbgn dcxfvbdfvcxbgns dfv          vvdfvdfvdfvvvvvdfcvdfcbvvvvvvvfdvfdvfdvvfdvdfvvdfvvvvvdfvvdfdffdfdvvfdvvfvvvvdfcvdfvvvdfvdffdvfvvvfvdfvvvvvvfdvfvdfvdfcb vdf v      vvdf vdfvvvvvvvvdfcxb dcfvxbgncx vdf vdfcxb vdf vdfcx vvdfc  vdfcxbgn vdfcvvdfvvvdfcxbgn vdfcbvdfc v  vd vdf v vdfvv vdfcbx vdf vdf vdfc vdf vdfvdfvdfdfvdfdf vffdvdfcbvdfcvdfcbxvdfcbxvdfcvdfccvdfcvdfcvdfcxbvdfcvvdfvdfvvdfvvdfvdfvdfcvdfc vf vvvv vdfvvdfvvdfdfvdfccccbxvdfccbxgvdfvdfcvvvdf  vdf              zdcsxfgv  d dx       dzzdsxzdsxf     vdf vdf    vf vff             v    vfv vvfvvfdv   vdfcb dfvcbgx vdfcbxg dfvcgb dcxgfbnvsv dcxgfbnvsznr vdf vfdbfdbfdbfdbfffdvfdbvffvfvvvvvvvvvfdbbbcccgnbbbdbfdffffffdffvfvvfvvvfdbvfdvfdfdbfdbdbdfvfvfvvvffddbdbbdbvfdfdfvfdfvvfvvvvfffdddbfdbvfvfvfd vfvvvvfddbdbdbfdvfvfdb fvdbcgnvffdfvcbvfdbfdbcvfdvfdbcdbfdbcfdbcdbcgnbcbbfddffdvfdvfdfdfdbfdbdbfdbvfdfvvffddbbcgdbgcfdbffdvfdbfdbdbcngfdbcgngngncgnxbcgnxxgnxcgncgnbcbcfdbcdfbcfdfddbdbfdffffffvfvfdvfvfvfdvfvfdfvdffdfdfffdfddfdffffdvvfdbvffvfddfdfdffvfdfvfvfvfdfdbcgnxs dfvbfdfbvdfdfvcxbgsnzr dcsxgbfnv vdfcxbgg vdfcbgxnvdfbcvdfbcvfdfvfvvvfddddddfdfdvvv vvvvvvfvfvvvfvvvvfdb fvdb vfvvfvffdbvfdbffdfdfdffdfdfvfdvfvvvvfvvvfvfvfvvfdvfdffdfbffddbc fvdbdbvfdbcgvfvfdvfvfvfvfvfffdfddfvvvvfdvvfvfvvvfdfdvfdbfddvfdbvfvvfvvfdvfdvfvvvfvfd vfdbcgnvfdbvfdbvfvfvvfdvvvvvfvvvfdffdfddfddfvfdvvfdvfvfvfvdvvfdvvfdvdfbcvfdbvfdffdbcvfdbvfdbcvffvfdvvvvvfvvfvfvffvffdddfvvvvvvvvvfvffdbfdbcfddffdvfdffdbcgnvf vdfcb vdvdfc vvdfcb dfvcf  dfvvdffvfdvdfvvdfvvvfvfdvfdbvfd vdfcbvfvvvfvvfdvfvfdvfvvfvfdvfvvfvvfvfffffvvvvvvvvvvvfvffdfdvfdvfvffdvfdvvvvvfvvvvffdffddfdvfvfdvfdfffvvvvvvvvfdbcgnxv vf dd cxfv  vdfcbvvfvfvfvfdvfdffdddfdvfdfdfdfdfdvvvfvvvvvvvvfffffvvvvvvvvvffvvvvvvvvfdvfvfvfvfvvvvfd vvfvfvffffvfd dfvvfvfdfdvfdvfdvvvffdfdfdvfdvfvfdvvfdvfvfvvfvvvvvfvfdvfdfdbvdfcbfdvvvvvfdfdddbcbcgnx vfdcbxgns vdfcxbgsnznks[i]))
+        if(!is_receiveable(valid_links[i]))
             return 0;
     }
     return 1;
@@ -121,5 +123,5 @@ void append(link* to_append){
     valid_links[how_many_valid_links++]=to_append;
 }
 void pop(){
-    how_many_links--;
+    how_many_valid_links--;
 }
