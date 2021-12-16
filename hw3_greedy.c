@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <math.h>
 
 #define MAX_NODES 10000
 int power,noise;
 int how_many_nodes;
 int how_many_links;
+int how_many_valid_links;
 
 struct node{
     double x;
@@ -11,20 +13,27 @@ struct node{
     int transmit_num;
     struct node* transmit_to[MAX_NODES];
     int is_transmitter;
+    int node_id;
 };
 typedef struct node node;
 
 struct link{
     node* transmitter;
     node* receiver;
+    double distance_t_r;
+    int link_id;
 };
 typedef struct link link;
 
 node nodes[MAX_NODES];
 link links[MAX_NODES*5];
+link* valid_links[MAX_NODES*5];
 
-int is_valid_to_append();
-void append();
+double dist(node*,node*);
+int is_valid_to_append(link*);
+int is_valid_links_valid();
+void append(link*);
+void pop();
 
 int main(){
     /* Get input */
@@ -32,6 +41,7 @@ int main(){
     for(int i=0;i<how_many_nodes;i++){
         int node_id;
         scanf("%d",&node_id);
+        nodes[node_id].node_id=node_id;
         scanf("%lf%lf",&nodes[node_id].x,&nodes[node_id].y);
     }
     for(int i=0;i<how_many_links;i++){
@@ -41,23 +51,75 @@ int main(){
         nodes[node_1].transmit_to[nodes[node_1].transmit_num++ ] = &nodes[node_2];
         links[link_id].transmitter=&nodes[node_1];
         links[link_id].receiver=&nodes[node_2];
+        links[link_id].distance_t_r = dist(links[link_id].transmitter,links[link_id].receiver);
+        links[link_id].link_id = link_id;
         nodes[node_1].is_transmitter=1;
     }
 
-    for(int i=0;i<how_many_links;i++){
-        if( is_valid_to_append() ){
-            append();
-        }
 
+    for(int i=0;i<how_many_links;i++){
+        is_valid_to_append(&links[i]);
+    }
+
+
+    /*Output*/
+    printf("%d\n",how_many_valid_links);
+    for(int i=0;i<how_many_valid_links;i++){
+        printf("%d %d %d\n",valid_links[i]->link_id,valid_links[i]->transmitter->node_id,valid_links[i]->receiver->node_id);
     }
 
 
     return 0;
 }
 
-double current_
+double dist(node* node_1,node* node_2){
+        double dx=(node_1->x)-(node_2->x);
+        double dy=(node_1->y)-(node_2->y);
+    return sqrt(dx*dx+dy*dy);
+}
 
-int is_valid_to_append(){
+double other_noise_counting( link* other, link* to_append ){
+    double tmp;
+    tmp = dist( other->transmitter, to_append->receiver );
+    return pow(to_append->distance_t_r,3)/pow(tmp,3);
+}
+
+int is_receiveable(link* receiver){
+    double other_noise=0;
+    for(int i=0;i<how_many_valid_links;i++){
+        if(receiver->link_id==i) continue;
+        other_noise+=other_noise_counting(&links[i],receiver);
+    }
+    double tmp = noise * pow(receiver->distance_t_r,3) / power;
+    if (other_noise + tmp < 1)
+        return 1;
+    else
+        return 0;
+}
+
+int is_valid_to_append(link* link_to_append){
+    append(link_to_append);
+    if ( is_valid_links_valid() )
+        return 1;
+    else
+        pop();
+    return 0;
+}
+
+int is_valid_links_valid(){
+    for(int i=0;i<how_many_valid_links;i++){
+        if(!is_receiveable(&li      dfvxc       v  v vdf vdfcb vdf vdf v         vvvvvdfcbxgn vdfcxbgsn vdfcbx vdfcxb vdf vdfvvvv vdfcvvdfdfvvvvdfvdfv vvvvdfvvdfcdfcvdfv v vdf vdfvdvdvvvvvvvdfvdf vvvvdf vvd vvdfc     dfv     dv          v v vvdfvdfvvdfc dfvcxdvfc   vd  dfv dfvc dfvcxbgsn dvv v vdfcx vdfc vdfc v vdfvdfvvdf v   vdfvdf vdfdfvdvdvvdfvdfvdfvdfvvvvdfvdfcbx v v vdfc vdfcb vdfdfvvdfcbxdfvdfcfdfcbvdfcbbxdfvdfcxbgnvdfcvdfvdfvdfv vdfvdfc vdfvdfvvdfcbdfcvdfcbxgn vdfcbxvdfvvdfcbvdfcbdfcvdfcvdfc vfddf vdfcvdfvdfcvdfdfdfcbxddfcbdfcbxgn vdfcb vdfcvdfvdfcvvdfvvdf vdfcvdfvvdfcbxvdfcbxg vdfcbxg vdfcbxgv vdf vvdfv vdfc vdfcvvdfcbvdfvdfcbxgn vdfcbxgvdfcvdfcb v vv v vvv vdf vdfcxbgn dcxfvbdfvcxbgns dfv          vvdfvdfvdfvvvvvdfcvdfcbvvvvvvvfdvfdvfdvvfdvdfvvdfvvvvvdfvvdfdffdfdvvfdvvfvvvvdfcvdfvvvdfvdffdvfvvvfvdfvvvvvvfdvfvdfvdfcb vdf v      vvdf vdfvvvvvvvvdfcxb dcfvxbgncx vdf vdfcxb vdf vdfcx vvdfc  vdfcxbgn vdfcvvdfvvvdfcxbgn vdfcbvdfc v  vd vdf v vdfvv vdfcbx vdf vdf vdfc vdf vdfvdfvdfdfvdfdf vffdvdfcbvdfcvdfcbxvdfcbxvdfcvdfccvdfcvdfcvdfcxbvdfcvvdfvdfvvdfvvdfvdfvdfcvdfc vf vvvv vdfvvdfvvdfdfvdfccccbxvdfccbxgvdfvdfcvvvdf  vdf              zdcsxfgv  d dx       dzzdsxzdsxf     vdf vdf    vf vff             v    vfv vvfvvfdv   vdfcb dfvcbgx vdfcbxg dfvcgb dcxgfbnvsv dcxgfbnvsznr vdf vfdbfdbfdbfdbfffdvfdbvffvfvvvvvvvvvfdbbbcccgnbbbdbfdffffffdffvfvvfvvvfdbvfdvfdfdbfdbdbdfvfvfvvvffddbdbbdbvfdfdfvfdfvvfvvvvfffdddbfdbvfvfvfd vfvvvvfddbdbdbfdvfvfdb fvdbcgnvffdfvcbvfdbfdbcvfdvfdbcdbfdbcfdbcdbcgnbcbbfddffdvfdvfdfdfdbfdbdbfdbvfdfvvffddbbcgdbgcfdbffdvfdbfdbdbcngfdbcgngngncgnxbcgnxxgnxcgncgnbcbcfdbcdfbcfdfddbdbfdffffffvfvfdvfvfvfdvfvfdfvdffdfdfffdfddfdffffdvvfdbvffvfddfdfdffvfdfvfvfvfdfdbcgnxs dfvbfdfbvdfdfvcxbgsnzr dcsxgbfnv vdfcxbgg vdfcbgxnvdfbcvdfbcvfdfvfvvvfddddddfdfdvvv vvvvvvfvfvvvfvvvvfdb fvdb vfvvfvffdbvfdbffdfdfdffdfdfvfdvfvvvvfvvvfvfvfvvfdvfdffdfbffddbc fvdbdbvfdbcgvfvfdvfvfvfvfvfffdfddfvvvvfdvvfvfvvvfdfdvfdbfddvfdbvfvvfvvfdvfdvfvvvfvfd vfdbcgnvfdbvfdbvfvfvvfdvvvvvfvvvfdffdfddfddfvfdvvfdvfvfvfvdvvfdvvfdvdfbcvfdbvfdffdbcvfdbvfdbcvffvfdvvvvvfvvfvfvffvffdddfvvvvvvvvvfvffdbfdbcfddffdvfdffdbcgnvf vdfcb vdvdfc vvdfcb dfvcf  dfvvdffvfdvdfvvdfvvvfvfdvfdbvfd vdfcbvfvvvfvvfdvfvfdvfvvfvfdvfvvfvvfvfffffvvvvvvvvvvvfvffdfdvfdvfvffdvfdvvvvvfvvvvffdffddfdvfvfdvfdfffvvvvvvvvfdbcgnxv vf dd cxfv  vdfcbvvfvfvfvfdvfdffdddfdvfdfdfdfdfdvvvfvvvvvvvvfffffvvvvvvvvvffvvvvvvvvfdvfvfvfvfvvvvfd vvfvfvffffvfd dfvvfvfdfdvfdvfdvvvffdfdfdvfdvfvfdvvfdvfvfvvfvvvvvfvfdvfdfdbvdfcbfdvvvvvfdfdddbcbcgnx vfdcbxgns vdfcxbgsnznks[i]))
+            return 0;
+    }
+    return 1;
+}
 
 
+
+
+void append(link* to_append){
+    valid_links[how_many_valid_links++]=to_append;
+}
+void pop(){
+    how_many_links--;
 }
