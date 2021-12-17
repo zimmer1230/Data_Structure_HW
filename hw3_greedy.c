@@ -56,7 +56,6 @@ int main(){
         nodes[node_1].is_transmitter=1;
     }
 
-
     for(int i=0;i<how_many_links;i++){
         is_valid_to_append(&links[i]);
     }
@@ -87,7 +86,7 @@ double other_noise_counting( link* other, link* to_append ){ // dl^3/dl'^3
 int is_receiveable(link* receiver){
     double other_noise=0;
     for(int i=0;i<how_many_valid_links;i++){
-        if(receiver->link_id==i) continue;
+        if(receiver->link_id==valid_links[i]->link_id) continue;
         other_noise+=other_noise_counting(valid_links[i],receiver);
     }
     double tmp = noise * pow(receiver->distance_t_r,3) / power;
@@ -100,7 +99,6 @@ int is_receiveable(link* receiver){
 int is_valid_to_append(link* link_to_append){
     append(link_to_append);
     if ( is_valid_links_valid() ){
-        printf("link %d is valid\n",link_to_append->link_id);
         return 1;
     }
     else
