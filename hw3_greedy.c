@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
-#define MAX_NODES 10000
+#define MAX_NODES 100000
 int power,noise;
 int how_many_nodes;
 int how_many_links;
@@ -11,7 +12,6 @@ struct node{
     double x;
     double y;
     int transmit_num;
-    struct node* transmit_to[MAX_NODES];
     int is_transmitter;
     int node_id;
 };
@@ -27,13 +27,23 @@ typedef struct link link;
 
 node nodes[MAX_NODES];
 link links[MAX_NODES*5];
+link sorted_by_len_links[MAX_NODES*5];
 link* valid_links[MAX_NODES*5];
+
+int cmp( const void* a, const void* b ){
+    link* n_1=(link*)a;
+    link* n_2=(link*)b;
+    return n_1->distance_t_r - n_2->distance_t_r ;
+
+}
 
 double dist(node*,node*);
 int is_valid_to_append(link*);
 int is_valid_links_valid();
 void append(link*);
 void pop();
+
+
 
 int main(){
     /* Get input */
@@ -48,13 +58,15 @@ int main(){
         int link_id,node_1,node_2;
         scanf("%d",&link_id);
         scanf("%d%d",&node_1,&node_2);
-        nodes[node_1].transmit_to[nodes[node_1].transmit_num++ ] = &nodes[node_2];
         links[link_id].transmitter=&nodes[node_1];
         links[link_id].receiver=&nodes[node_2];
         links[link_id].distance_t_r = dist(links[link_id].transmitter,links[link_id].receiver);
         links[link_id].link_id = link_id;
         nodes[node_1].is_transmitter=1;
     }
+
+    qsort(links,how_many_links,sizeof(link),cmp);
+
 
     for(int i=0;i<how_many_links;i++){
         is_valid_to_append(&links[i]);
