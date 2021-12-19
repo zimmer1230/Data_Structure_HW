@@ -11,8 +11,6 @@ int how_many_valid_links;
 struct node{
     double x;
     double y;
-    int transmit_num;
-    int is_transmitter;
     int node_id;
 };
 typedef struct node node;
@@ -27,14 +25,15 @@ typedef struct link link;
 
 node nodes[MAX_NODES];
 link links[MAX_NODES*5];
-link sorted_by_len_links[MAX_NODES*5];
+link* sorted_links[MAX_NODES*5];
 link* valid_links[MAX_NODES*5];
 
 int cmp( const void* a, const void* b ){
-    link* n_1=(link*)a;
-    link* n_2=(link*)b;
-    return n_1->distance_t_r - n_2->distance_t_r ;
-
+    link* d1 = (link*)a;
+    link* d2 = (link*)b;
+    if ( d1->distance_t_r > d2->distance_t_r )
+        return 1;
+    else return -1;
 }
 
 double dist(node*,node*);
@@ -62,14 +61,21 @@ int main(){
         links[link_id].receiver=&nodes[node_2];
         links[link_id].distance_t_r = dist(links[link_id].transmitter,links[link_id].receiver);
         links[link_id].link_id = link_id;
-        nodes[node_1].is_transmitter=1;
+        sorted_links[link_id]=&links[link_id];
     }
 
-    qsort(links,how_many_links,sizeof(link),cmp);
+
+
+
+
+    qsort(sorted_links,how_many_links,sizeof(link*),cmp);
+
+    for(int i=0;i<how_many_links;i++)
+    printf("%lf\n",sorted_links[i]->distance_t_r);
 
 
     for(int i=0;i<how_many_links;i++){
-        is_valid_to_append(&links[i]);
+        is_valid_to_append(sorted_links[i]);
     }
 
 
