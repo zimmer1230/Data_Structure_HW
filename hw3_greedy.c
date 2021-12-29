@@ -9,6 +9,7 @@ int how_many_links;
 int how_many_valid_links;
 
 struct node{
+    int virgin; //是否被用過
     double x;
     double y;
     int node_id;
@@ -20,6 +21,7 @@ struct link{
     node* receiver;
     double distance_t_r;
     int link_id;
+    double other_noise;
 };
 typedef struct link link;
 
@@ -29,8 +31,8 @@ link* sorted_links[MAX_NODES*5];
 link* valid_links[MAX_NODES*5];
 
 int cmp( const void* a, const void* b ){
-    link* d1 = (link*)a;
-    link* d2 = (link*)b;
+    link* d1 = *(link**)a;
+    link* d2 = *(link**)b;
     if ( d1->distance_t_r > d2->distance_t_r )
         return 1;
     else return -1;
@@ -61,6 +63,7 @@ int main(){
         links[link_id].receiver=&nodes[node_2];
         links[link_id].distance_t_r = dist(links[link_id].transmitter,links[link_id].receiver);
         links[link_id].link_id = link_id;
+        links[link_id].other_noise = noise * pow(links[link_id].distance_t_r,3) / power;
         sorted_links[link_id]=&links[link_id];
     }
 
@@ -70,11 +73,12 @@ int main(){
 
     qsort(sorted_links,how_many_links,sizeof(link*),cmp);
 
-    for(int i=0;i<how_many_links;i++)
-    printf("%lf\n",sorted_links[i]->distance_t_r);
+//    for(int i=0;i<how_many_links;i++)
+//    printf("%lf\n",sorted_links[i]->distance_t_r);
 
 
     for(int i=0;i<how_many_links;i++){
+        if( sorted_links[i]->transmitter->virgin == 1 || sorted_links[i]->receiver->virgin == 1 ) continue;
         is_valid_to_append(sorted_links[i]);
     }
 
@@ -102,21 +106,19 @@ double other_noise_counting( link* other, link* to_append ){ // dl^3/dl'^3
 }
 
 int is_receiveable(link* receiver){
-    double other_noise=0;
-    for(int i=0;i<how_many_valid_links;i++){
-        if(receiver->link_id==valid_links[i]->link_id) continue;
-        other_noise+=other_noise_counting(valid_links[i],receiver);
-    }
-    double tmp = noise * pow(receiver->distance_t_r,3) / power;
-    if (other_noise + tmp < 1)
-        return 1;
-    else
-        return 0;
+        receiver->other_noise += other_noise_counting(valid_links[how_many_valid_links-1],receiver);
+        if( receiver->other_noise > 1 ){
+            receiver->other_noise -= other_noise_counting(valid_links[how_many_valid_links-1],receiver);
+            return 0;
+        }
+    return 1;
 }
 
 int is_valid_to_append(link* link_to_append){
     append(link_to_append);
     if ( is_valid_links_valid() ){
+        link_to_append->transmitter->virgin=1;
+        link_to_append->receiver->virgin=1;
         return 1;
     }
     else
@@ -125,7 +127,13 @@ int is_valid_to_append(link* link_to_append){
 }
 
 int is_valid_links_valid(){
-    for(int i=0;i<how_many_valid_links;i++){
+    link* new_bie = valid_links[how_many_valid_links-1];
+    for(int j=0;j<how_many_valid_links-1;j++){
+        new_bie->other_noise += other_noise_counting(valid_links[j],new_bie);
+    }
+    if ( new_bie->other_noise > 1 ) return 0;
+
+    for(int i=0;i<how_many_valid_links-1;i++){
         if(!is_receiveable(valid_links[i]))
             return 0;
     }
