@@ -13,10 +13,9 @@ int main(){
         scanf("%d",&input);
         printf("%d ",input);
 
-        s = k*prnd;
-        x = s%
-        h(k) = floor(m*x)
-
+        s = floor(A * 2^w)
+        x = k*s
+        h(k) = x >> (w-p)
 
 
         if(bucket[input]==1)
