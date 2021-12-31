@@ -1,26 +1,103 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
+#include <math.h>
 
-int p,n,m,input;
-unsigned int hash(unsigned int x) {
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = (x >> 16) ^ x;
-    return x%m;
-}
+struct bit{
+    unsigned int f_0;
+    unsigned int f_1;
+    unsigned int f_2;
+    unsigned int f_3;
+    unsigned int f_4;
+    unsigned int f_5;
+    unsigned int f_6;
+    unsigned int f_7;
+};
+typedef struct bit bit;
+
 int main(){
     int p,n,m,input;
     scanf("%d%d%d",&p,&m,&n);
-    bool* bucket=(bool*)calloc(m,sizeof(bool));
+    bit* bucket=(bit*)calloc(1+(m/8),sizeof(bit));
     while(n--){
         scanf("%d",&input);
         printf("%d ",input);
-        (bucket[hash(input)]==1)?printf("0\n"):printf("1\n");
-        bucket[hash(input)]=1;
+#define h_input (int)( 10*sprt(input) )%m
+        switch(h_input%8){
+        case 0:
+            if(bucket[h_input/8].f_0==0){
+                printf("1\n");
+                bucket[h_input/8].f_0=1;
+            }
+            else{
+                printf("0\n");
+            }
+            break;
+        case 1:
+            if(bucket[h_input/8].f_1==0){
+                printf("1\n");
+                bucket[h_input/8].f_1=1;
+            }
+            else{
+                printf("0\n");
+            }
+            break;
+        case 2:
+            if(bucket[h_input/8].f_2==0){
+                printf("1\n");
+                bucket[h_input/8].f_2=1;
+            }
+            else{
+                printf("0\n");
+            }
+            break;
+        case 3:
+            if(bucket[h_input/8].f_3==0){
+                printf("1\n");
+                bucket[h_input/8].f_3=1;
+            }
+            else{
+                printf("0\n");
+            }
+            break;
+        case 4:
+            if(bucket[h_input/8].f_4==0){
+                printf("1\n");
+                bucket[h_input/8].f_4=1;
+            }
+            else{
+                printf("0\n");
+            }
+            break;
+        case 5:
+            if(bucket[h_input/8].f_5==0){
+                printf("1\n");
+                bucket[h_input/8].f_5=1;
+            }
+            else{
+                printf("0\n");
+            }
+            break;
+        case 6:
+            if(bucket[h_input/8].f_6==0){
+                printf("1\n");
+                bucket[h_input/8].f_6=1;
+            }
+            else{
+                printf("0\n");
+            }
+            break;
+        case 7:
+            if(bucket[h_input/8].f_7==0){
+                printf("1\n");
+                bucket[h_input/8].f_7=1;
+            }
+            else{
+                printf("0\n");
+            }
+            break;
+        }
+
     }
 
 
 }
-
