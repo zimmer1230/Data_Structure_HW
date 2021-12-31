@@ -22,7 +22,7 @@ int main(){
     while(n--){
         scanf("%d",&input);
         printf("%d ",input);
-#define h_input input%p%m
+#define h_input input*input%p%m
         switch(h_input%8){
         case 0:
             if(bucket[h_input/8].f_0==0){
